@@ -1,11 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/karmada-io/dashboard/pkg/client"
+	karmadaclientset "github.com/karmada-io/karmada/pkg/generated/clientset/versioned"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/warjiang/karmada-mcp-server/pkg/karmada"
+	"io"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 var version = "version"
@@ -44,6 +51,9 @@ func init() {
 	_ = viper.BindPFlag("karmada-kubeconfig", rootCmd.PersistentFlags().Lookup("karmada-kubeconfig"))
 	_ = viper.BindPFlag("karmada-context", rootCmd.PersistentFlags().Lookup("karmada-context"))
 	_ = viper.BindPFlag("skip-karmada-apiserver-tls-verify", rootCmd.PersistentFlags().Lookup("skip-karmada-apiserver-tls-verify"))
+
+	// Add subcommands
+	rootCmd.AddCommand(stdioCmd)
 }
 
 func initConfig() {
@@ -53,14 +63,53 @@ func initConfig() {
 }
 
 func runStdioServer() error {
+	// Create app context
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	hooks := &server.Hooks{}
+
 	// Create a new MCP server
-	server.NewMCPServer(
-		"karmada-mcp-server",
-		"1.0.0",
-		server.WithToolCapabilities(true),
-		server.WithResourceCapabilities(true, true),
-		server.WithLogging(),
+	karmadaServer := karmada.NewServer(version, server.WithHooks(hooks))
+
+	// init client for karmada apiserver
+	client.InitKarmadaConfig(
+		client.WithKubeconfig(viper.GetString("karmada-kubeconfig")),
+		client.WithKubeContext(viper.GetString("karmada-context")),
+		client.WithInsecureTLSSkipVerify(viper.GetBool("skip-karmada-apiserver-tls-verify")),
 	)
+
+	karmadaClient := client.InClusterKarmadaClient()
+	getClient := func(_ context.Context) (karmadaclientset.Interface, error) {
+		return karmadaClient, nil // closing over client
+	}
+
+	tool, handler := karmada.ListClusters(getClient)
+	karmadaServer.AddTool(tool, handler)
+
+	stdioServer := server.NewStdioServer(karmadaServer)
+
+	// Start listening for messages
+	errC := make(chan error, 1)
+	go func() {
+		in, out := io.Reader(os.Stdin), io.Writer(os.Stdout)
+
+		errC <- stdioServer.Listen(ctx, in, out)
+	}()
+
+	// Output karmada-mcp-server string
+	_, _ = fmt.Fprintf(os.Stderr, "Karmada MCP Server running on stdio\n")
+
+	// Wait for shutdown signal
+	select {
+	case <-ctx.Done():
+		fmt.Errorf("shutting down server...")
+	case err := <-errC:
+		if err != nil {
+			return fmt.Errorf("error running server: %w", err)
+		}
+	}
+
 	return nil
 }
 
