@@ -28,7 +28,14 @@ func ListClusters(getClient GetClientFn) (tool mcp.Tool, handler server.ToolHand
 				return nil, fmt.Errorf("failed to get cluster list: %w", err)
 			}
 
-			r, err := json.Marshal(result)
+			clusters := make([]string, 0)
+			for _, c := range result.Clusters {
+				clusters = append(clusters, c.ObjectMeta.Name)
+			}
+
+			r, err := json.Marshal(map[string]interface{}{
+				"clusters": clusters,
+			})
 			if err != nil {
 				return nil, fmt.Errorf("failed to marshal user: %w", err)
 			}
