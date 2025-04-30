@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/warjiang/karmada-mcp-server/pkg/karmada"
 	"io"
+	"k8s.io/client-go/kubernetes"
 	"os"
 	"os/signal"
 	"syscall"
@@ -84,8 +85,21 @@ func runStdioServer() error {
 		return karmadaClient, nil // closing over client
 	}
 
-	tool, handler := karmada.ListClusters(getClient)
-	karmadaServer.AddTool(tool, handler)
+	k8sClient := client.InClusterClientForKarmadaAPIServer()
+
+	getKubernetesClient := func(_ context.Context) (kubernetes.Interface, error) {
+		return k8sClient, nil // closing over client
+	}
+
+	{
+		tool, handler := karmada.ListClusters(getClient)
+		karmadaServer.AddTool(tool, handler)
+	}
+
+	{
+		tool, handler := karmada.CreateNamespace(getKubernetesClient)
+		karmadaServer.AddTool(tool, handler)
+	}
 
 	stdioServer := server.NewStdioServer(karmadaServer)
 

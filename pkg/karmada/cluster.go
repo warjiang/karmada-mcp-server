@@ -13,7 +13,7 @@ import (
 func ListClusters(getClient GetClientFn) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool(
 			"list_clusters",
-			mcp.WithDescription("List all clusters in the Karmada control plane."),
+			mcp.WithDescription("List all clusters in the Karmada control-plane."),
 		),
 
 		func(ctx context.Context, _ mcp.CallToolRequest) (*mcp.CallToolResult, error) {
