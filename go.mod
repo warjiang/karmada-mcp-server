@@ -5,7 +5,7 @@ go 1.24.0
 require (
 	github.com/karmada-io/dashboard v0.1.0
 	github.com/karmada-io/karmada v1.12.1
-	github.com/mark3labs/mcp-go v0.22.0
+	github.com/mark3labs/mcp-go v0.26.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
 )
