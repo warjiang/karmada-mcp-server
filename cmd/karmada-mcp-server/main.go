@@ -6,7 +6,8 @@ import (
 	"github.com/karmada-io/karmada/pkg/sharedcli/klogflag"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/warjiang/karmada-mcp-server/cmd/karmada-mcp-server/app"
+	"github.com/warjiang/karmada-mcp-server/cmd/karmada-mcp-server/app/sse"
+	"github.com/warjiang/karmada-mcp-server/cmd/karmada-mcp-server/app/stdio"
 	"github.com/warjiang/karmada-mcp-server/pkg/environment"
 	cliflag "k8s.io/component-base/cli/flag"
 	"os"
@@ -41,8 +42,8 @@ func init() {
 	_ = viper.BindPFlag("skip-karmada-apiserver-tls-verify", rootCmd.PersistentFlags().Lookup("skip-karmada-apiserver-tls-verify"))
 
 	// Add subcommands
-	rootCmd.AddCommand(app.NewStdioCommand())
-	rootCmd.AddCommand(app.NewSseCommand())
+	rootCmd.AddCommand(stdio.NewStdioCommand())
+	rootCmd.AddCommand(sse.NewSseCommand())
 
 }
 
