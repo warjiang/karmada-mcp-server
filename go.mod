@@ -8,6 +8,8 @@ require (
 	github.com/mark3labs/mcp-go v0.26.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.18.2
+	k8s.io/client-go v0.31.2
+	k8s.io/component-base v0.31.2
 )
 
 require (
@@ -65,7 +67,6 @@ require (
 	k8s.io/api v0.31.2 // indirect
 	k8s.io/apiextensions-apiserver v0.31.2 // indirect
 	k8s.io/apimachinery v0.31.2 // indirect
-	k8s.io/client-go v0.31.2 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240430033511-f0e62f92d13f // indirect
 	k8s.io/utils v0.0.0-20240711033017-18e509b52bc8 // indirect
