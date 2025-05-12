@@ -10,7 +10,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 )
 
-func ListClusters(getClient GetClientFn) (tool mcp.Tool, handler server.ToolHandlerFunc) {
+func ListClusters(getClient GetKarmadaClientFn) (tool mcp.Tool, handler server.ToolHandlerFunc) {
 	return mcp.NewTool(
 			"list_clusters",
 			mcp.WithDescription("List all clusters in the Karmada control-plane."),
