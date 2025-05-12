@@ -11,6 +11,7 @@ func NewServer(version string, opts ...server.ServerOption) *server.MCPServer {
 		server.WithLogging(),
 	}
 	opts = append(defaultOpts, opts...)
+
 	// Create a new MCP server
 	s := server.NewMCPServer(
 		"karmada-mcp-server",
