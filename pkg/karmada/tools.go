@@ -7,24 +7,28 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type GetClientFn func(context.Context) (karmadaclientset.Interface, error)
+type GetKarmadaClientFn func(context.Context) (karmadaclientset.Interface, error)
 
 type GetKubernetesClientFn func(context.Context) (kubernetes.Interface, error)
 
 var DefaultTools = []string{"all"}
 
-func InitToolsetGroup(passedToolsets []string, readOnly bool, getClient GetClientFn) (*toolsets.ToolsetGroup, error) {
+func InitToolsetGroup(passedToolsets []string, readOnly bool, getKarmadaClient GetKarmadaClientFn, getKubernetesClient GetKubernetesClientFn) (*toolsets.ToolsetGroup, error) {
 	// Create a new toolset group
 	tsg := toolsets.NewToolsetGroup(readOnly)
 
 	// Define all available features with their default state (disabled)
 	// Create toolsets
 	clusters := toolsets.NewToolset("cluster", "Karmada cluster related tools").
-		AddReadTools().
+		AddReadTools(
+			toolsets.NewServerTool(ListClusters(getKarmadaClient)),
+		).
 		AddWriteTools()
 	policies := toolsets.NewToolset("policy", "Karmada policy related tools").
 		AddReadTools().
-		AddWriteTools()
+		AddWriteTools(
+			toolsets.NewServerTool(CreateNamespace(getKubernetesClient)),
+		)
 	// Add toolsets to the group
 	tsg.AddToolset(clusters)
 	tsg.AddToolset(policies)
