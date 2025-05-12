@@ -29,14 +29,14 @@ function util::git::version_ldflags() {
   GIT_VERSION=$(git rev-parse --abbrev-ref HEAD)
   GIT_COMMIT_HASH=$(git rev-parse HEAD)
   if git_status=$(git status --porcelain 2>/dev/null) && [[ -z ${git_status} ]]; then
-    GIT_TREESTATE="clean"
+    GIT_TREE_STATE="clean"
   else
-    GIT_TREESTATE="dirty"
+    GIT_TREE_STATE="dirty"
   fi
-  BUILDDATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-  LDFLAGS="-X github.com/karmada-io/dashboard/pkg/environment.gitVersion=${GIT_VERSION} \
-           -X github.com/karmada-io/dashboard/pkg/environment.gitCommit=${GIT_COMMIT_HASH} \
-           -X github.com/karmada-io/dashboard/pkg/environment.gitTreeState=${GIT_TREESTATE} \
-           -X github.com/karmada-io/dashboard/pkg/environment.buildDate=${BUILDDATE}"
+  BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+  LDFLAGS="-X github.com/warjiang/karmada-mcp-server/pkg/environment.gitVersion=${GIT_VERSION} \
+           -X github.com/warjiang/karmada-mcp-server/pkg/environment.gitCommit=${GIT_COMMIT_HASH} \
+           -X github.com/warjiang/karmada-mcp-server/pkg/environment.gitTreeState=${GIT_TREE_STATE} \
+           -X github.com/warjiang/karmada-mcp-server/pkg/environment.buildDate=${BUILD_DATE}"
   echo "$LDFLAGS"
 }
