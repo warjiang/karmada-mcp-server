@@ -39,8 +39,6 @@ func runSseServer(opts SseServerOptions) error {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	ctx = ctx
-
 	karmadaServer, err := karmada.NewMCPServer(karmada.MCPServerConfig{
 		Version:         opts.Version,
 		EnabledToolsets: opts.EnabledToolsets,
@@ -54,7 +52,23 @@ func runSseServer(opts SseServerOptions) error {
 		server.WithBaseURL("http://localhost:5173"),
 		server.WithStaticBasePath("/mcp"),
 	)
-	sseServer.Start("localhost:1234")
+
+	// Start listening for messages
+	errC := make(chan error, 1)
+	go func() {
+		klog.Info("mcp server in sse mode started")
+		errC <- sseServer.Start("localhost:1234")
+	}()
+
+	// Wait for shutdown signal
+	select {
+	case <-ctx.Done():
+		klog.Info("shutting down sse server...")
+	case err := <-errC:
+		if err != nil {
+			return fmt.Errorf("error running server: %w", err)
+		}
+	}
 
 	return nil
 }

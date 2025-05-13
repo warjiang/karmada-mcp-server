@@ -7,9 +7,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/warjiang/karmada-mcp-server/pkg/environment"
 	"github.com/warjiang/karmada-mcp-server/pkg/karmada"
-	"io"
 	"k8s.io/klog/v2"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func NewStdioCommand() *cobra.Command {
@@ -34,6 +35,10 @@ func NewStdioCommand() *cobra.Command {
 func runStdioServer(opts StdioServerOptions) error {
 	klog.Info("Starting mcp server in stdio mode")
 
+	// Create app context
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
 	karmadaServer, err := karmada.NewMCPServer(karmada.MCPServerConfig{
 		Version:         opts.Version,
 		EnabledToolsets: opts.EnabledToolsets,
@@ -44,8 +49,23 @@ func runStdioServer(opts StdioServerOptions) error {
 	}
 
 	stdioServer := server.NewStdioServer(karmadaServer)
-	in, out := io.Reader(os.Stdin), io.Writer(os.Stdout)
-	ctx := context.TODO()
-	stdioServer.Listen(ctx, in, out)
+
+	// Start listening for messages
+	errC := make(chan error, 1)
+	go func() {
+		klog.Info("mcp server in stdio mode started")
+		errC <- stdioServer.Listen(ctx, os.Stdin, os.Stdout)
+	}()
+
+	// Wait for shutdown signal
+	select {
+	case <-ctx.Done():
+		klog.Info("shutting down stdio server...")
+	case err := <-errC:
+		if err != nil {
+			return fmt.Errorf("error running server: %w", err)
+		}
+	}
+
 	return nil
 }
