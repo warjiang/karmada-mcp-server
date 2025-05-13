@@ -25,8 +25,14 @@ func InitToolsetGroup(passedToolsets []string, readOnly bool, getKarmadaClient G
 		).
 		AddWriteTools()
 	policies := toolsets.NewToolset("policy", "Karmada policy related tools").
-		AddReadTools().
-		AddWriteTools()
+		AddReadTools(
+			toolsets.NewServerTool(ListPropagationPolicy(getKarmadaClient, getKubernetesClient)),
+			toolsets.NewServerTool(GetPropagationPolicy(getKarmadaClient)),
+		).
+		AddWriteTools(
+			toolsets.NewServerTool(CreatePropagationPolicy(getKarmadaClient)),
+			toolsets.NewServerTool(DeletePropagationPolicy(getKarmadaClient)),
+		)
 	resources := toolsets.NewToolset("resource", "Karmada resource related tools").
 		AddReadTools(
 			toolsets.NewServerTool(ListNamespace(getKubernetesClient)),
