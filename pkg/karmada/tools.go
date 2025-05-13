@@ -26,12 +26,18 @@ func InitToolsetGroup(passedToolsets []string, readOnly bool, getKarmadaClient G
 		AddWriteTools()
 	policies := toolsets.NewToolset("policy", "Karmada policy related tools").
 		AddReadTools().
+		AddWriteTools()
+	resources := toolsets.NewToolset("resource", "Karmada resource related tools").
+		AddReadTools(
+			toolsets.NewServerTool(ListNamespace(getKubernetesClient)),
+		).
 		AddWriteTools(
 			toolsets.NewServerTool(CreateNamespace(getKubernetesClient)),
 		)
 	// Add toolsets to the group
 	tsg.AddToolset(clusters)
 	tsg.AddToolset(policies)
+	tsg.AddToolset(resources)
 
 	// Enable the requested features
 	if err := tsg.EnableToolsets(passedToolsets); err != nil {
