@@ -30,9 +30,11 @@ func InitToolsetGroup(passedToolsets []string, readOnly bool, getKarmadaClient G
 	resources := toolsets.NewToolset("resource", "Karmada resource related tools").
 		AddReadTools(
 			toolsets.NewServerTool(ListNamespace(getKubernetesClient)),
+			toolsets.NewServerTool(ListDeployment(getKubernetesClient)),
 		).
 		AddWriteTools(
 			toolsets.NewServerTool(CreateNamespace(getKubernetesClient)),
+			toolsets.NewServerTool(CreateDeployment(getKubernetesClient)),
 			toolsets.NewServerTool(DeleteUnstructuredResource()),
 		)
 	// Add toolsets to the group
