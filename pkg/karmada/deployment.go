@@ -22,7 +22,7 @@ func CreateDeployment(getKubernetesClient GetKubernetesClientFn) (tool mcp.Tool,
 			mcp.WithString("name", mcp.Required(), mcp.Description("name for deployment")),
 			mcp.WithString("namespace", mcp.Required(), mcp.Description("namespace for deployment")),
 			mcp.WithString("content", mcp.Required(), mcp.Description("deployment content which in form of yaml")),
-			mcp.WithBoolean("dry-run", mcp.DefaultBool(true), mcp.Description("dry-run options, if true the resource will not be applied to apiserver directly")),
+			//mcp.WithBoolean("dry-run", mcp.DefaultBool(true), mcp.Description("dry-run options, if true the resource will not be applied to apiserver directly")),
 		),
 		func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 			karmadaClient, err := getKubernetesClient(ctx)
