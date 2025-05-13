@@ -33,6 +33,7 @@ func InitToolsetGroup(passedToolsets []string, readOnly bool, getKarmadaClient G
 		).
 		AddWriteTools(
 			toolsets.NewServerTool(CreateNamespace(getKubernetesClient)),
+			toolsets.NewServerTool(DeleteUnstructuredResource()),
 		)
 	// Add toolsets to the group
 	tsg.AddToolset(clusters)
