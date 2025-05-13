@@ -37,7 +37,7 @@ func ListClusters(getClient GetKarmadaClientFn) (tool mcp.Tool, handler server.T
 				"clusters": clusters,
 			})
 			if err != nil {
-				return nil, fmt.Errorf("failed to marshal user: %w", err)
+				return nil, fmt.Errorf("failed to marshal clusters: %w", err)
 			}
 
 			return mcp.NewToolResultText(string(r)), nil
