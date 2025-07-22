@@ -28,7 +28,7 @@ func NewSseCommand() *cobra.Command {
 			return runSseServer(sseServerConfig)
 		},
 	}
-
+	opts.AddFlags(cmd.Flags())
 	return cmd
 }
 
@@ -49,7 +49,7 @@ func runSseServer(opts SseServerOptions) error {
 	}
 
 	sseServer := server.NewSSEServer(karmadaServer,
-		server.WithBaseURL("http://localhost:5173"),
+		//server.WithBaseURL("http://localhost:5173"),
 		server.WithStaticBasePath("/mcp"),
 	)
 
