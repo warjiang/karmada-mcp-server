@@ -3,7 +3,8 @@ MCP Server for karmada
 
 
 
-```json
+```yaml
+# for stdio mode
 {
   "mcpServers": {
     "karmada-mcp-server": {
@@ -16,6 +17,18 @@ MCP Server for karmada
         "--karmada-context=karmada-apiserver",
         "--skip-karmada-apiserver-tls-verify"
       ]
+    }
+  }
+}
+
+
+# for sse mode
+{
+  "mcpServers": {
+    "karmada-mcp-server": {
+      "name": "karmada-mcp-server",
+      "type": "sse",
+      "baseUrl": "http://localhost:1234/mcp/sse"
     }
   }
 }
